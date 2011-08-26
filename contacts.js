@@ -1,4 +1,12 @@
-"use strict";
+/* * * * *
+ * Ivan Gromov (c) 2011 Redsolution LLC
+ *
+ * * * * * * * * * * * * * * * */
+
+
+/* *
+ * Months to Enum convertor
+ */
 var months = {
     0: ContactsApp.Month.JANUARY,
     1: ContactsApp.Month.FEBRUARY,
@@ -14,7 +22,9 @@ var months = {
     11: ContactsApp.Month.DECEMBER
 };
 
-// Column config
+/* *
+ * Column config. YOu can edit column numbers to your taste
+ */
 var COL = {
     LAST_NAME: 1,
     FIRST_NAME: 2,
@@ -27,16 +37,24 @@ var COL = {
     GROUPS: 9
 };
 
-
+/* *
+ * Utility to trim whitespaces. Used in group names
+ */
 function trim(string) {
     return string.replace(/(^\s+)|(\s+$)/g, "");
 }
 
+/* *
+ * Hightlight cell with incorrect or missing data with red
+ */
 function markError(row, col) {
     var sheet = SpreadsheetApp.getActiveSheet();
     sheet.getRange(row, col, 1, 1).setBackgroundColor('#DB9378');
 }
 
+/* *
+ * Clear highlighted errors. Highlight header and restore striped row colors.
+ */
 function clearErrors() {
     var sheet = SpreadsheetApp.getActiveSheet(),
         headerColor = '#333333',
@@ -57,6 +75,12 @@ function clearErrors() {
     }
 }
 
+/* *
+ * If sheet has no data filled, this utility automatically creates
+ * header fot table. You may rename columns later, they filled 
+ * automatically only when 1st row is empty.
+ * Script runs every time at synchronization.
+ */
 function initHeader() {
     var sheet = SpreadsheetApp.getActiveSheet();
     sheet.getRange(1, COL.LAST_NAME, 1, 1).setValue(COL.LAST_NAME + '. Last name');
@@ -71,6 +95,13 @@ function initHeader() {
 
 }
 
+/* *
+ * More complicated function to create or update phone nubmer
+ *
+ * @param contact - ContactApp.Contact instance
+ * @param phone - String phone number
+ * @param type - ContactsApp.Field type
+ */
 function updatePhone(contact, phone, type) {
     if (phone.length < 3) {
         return;
@@ -98,7 +129,7 @@ function syncQuiet() {
     try {
         sync(false);
     } catch (e) {
-        // Do nothing
+        // Do nothing in quiet mode
     }
 }
 
@@ -110,6 +141,11 @@ function syncVerbose() {
     }
 }
 
+/* *
+ * Main synchronization utility. Does almost all job.
+ *
+ * @param verbose - Boolean verbose level. If false, no msgBox appears.
+ */
 function sync(verbose) {
     var sheet = SpreadsheetApp.getActiveSheet(),
         created = 0,
@@ -222,6 +258,9 @@ data.birthday.getYear());
     }
 }
 
+/* *
+ * Register menu item and reset errors when sheet is opening.
+ */
 function onOpen() {
     var menuItems = [{
         name: "Синхронизировать",
